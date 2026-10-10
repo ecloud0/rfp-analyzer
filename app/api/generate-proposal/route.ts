@@ -19,7 +19,8 @@ export async function POST(request: Request) {
 
     // STEP 1: PARSE PDF TO TEXT
     const pdfText = await new Promise<string>((resolve, reject) => {
-      const pdfParser = new PDFParser(null, 1);
+      // FIX: Changed '1' to 'true' to satisfy strict TypeScript type checking for Vercel
+      const pdfParser = new PDFParser(null, true);
       
       pdfParser.on("pdfParser_dataError", (errData: any) => {
         reject(new Error(errData.parserError));
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     // STEP 2: SEND EXTRACTED TEXT TO OPENAI API
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini", // Fast and cost-effective model
-      max_tokens: 1500,
+      max_tokens: 1500, // Limit output to control costs
       messages: [
         {
           role: "system",
